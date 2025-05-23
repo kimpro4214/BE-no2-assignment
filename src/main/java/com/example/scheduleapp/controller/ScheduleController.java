@@ -43,13 +43,10 @@ public class ScheduleController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSchedule(@PathVariable Long id,
                                             @RequestBody ScheduleRequestDto dto) {
-        try {
-            service.update(id, dto);
-            return ResponseEntity.ok("일정이 수정되었습니다.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        service.update(id, dto);
+        return ResponseEntity.ok("일정이 수정되었습니다.");
     }
+
     //삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteSchedule(@PathVariable Long id,

@@ -2,6 +2,8 @@ package com.example.scheduleapp.service;
 
 import com.example.scheduleapp.dto.ScheduleRequestDto;
 import com.example.scheduleapp.dto.ScheduleResponseDto;
+import com.example.scheduleapp.exception.PasswordMismatchException;
+import com.example.scheduleapp.exception.ScheduleNotFoundException;
 import com.example.scheduleapp.repository.AuthorRepository;
 import com.example.scheduleapp.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,11 @@ public class ScheduleService {
     }
 
     public ScheduleResponseDto getScheduleById(Long id) {
+        //lv5
+        ScheduleResponseDto schedule = scheduleRepo.findById(id);
+        if (schedule == null) {
+            throw new ScheduleNotFoundException("해당 일정이 존재하지 않습니다.");
+        }
         return scheduleRepo.findById(id);
     }
 
@@ -51,7 +58,7 @@ public class ScheduleService {
         // 1. 비밀번호 일치 확인
         String savedPassword = scheduleRepo.findPasswordById(id);
         if (!savedPassword.equals(dto.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
         }
 
         // 2. 작성자 찾기 (name + email)
@@ -80,6 +87,8 @@ public class ScheduleService {
         int offset = (page - 1) * size;
         return scheduleRepo.findPaged(offset, size);
     }
+
+
 
 
 

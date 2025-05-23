@@ -2,6 +2,8 @@ package com.example.scheduleapp.repository;
 
 import com.example.scheduleapp.dto.ScheduleRequestDto;
 import com.example.scheduleapp.dto.ScheduleResponseDto;
+import com.example.scheduleapp.exception.ScheduleNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -63,16 +65,20 @@ public class ScheduleRepository {
         String sql = "SELECT s.id, s.title, s.content, s.created_at, s.modified_at, a.name AS writerName " +
                 "FROM schedules s JOIN authors a ON s.author_id = a.id WHERE s.id = ?";
 
-        return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) ->
-                new ScheduleResponseDto(
-                        rs.getLong("id"),
-                        rs.getString("title"),
-                        rs.getString("writerName"),
-                        rs.getString("content"),
-                        rs.getTimestamp("created_at").toLocalDateTime(),
-                        rs.getTimestamp("modified_at").toLocalDateTime()
-                )
-        );
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) ->
+                    new ScheduleResponseDto(
+                            rs.getLong("id"),
+                            rs.getString("title"),
+                            rs.getString("writerName"),
+                            rs.getString("content"),
+                            rs.getTimestamp("created_at").toLocalDateTime(),
+                            rs.getTimestamp("modified_at").toLocalDateTime()
+                    )
+            );
+        } catch (EmptyResultDataAccessException e) {
+            throw new ScheduleNotFoundException("해당 일정이 존재하지 않습니다.");
+        }
     }
 
     public void update(Long id, ScheduleRequestDto dto, Long authorId) {
@@ -112,6 +118,10 @@ public class ScheduleRepository {
                 )
         );
     }
+
+
+
+
 
 
 
