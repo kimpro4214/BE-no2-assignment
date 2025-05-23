@@ -86,11 +86,34 @@ public class ScheduleRepository {
         String sql = "DELETE FROM schedules WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
-    //lv3
+    // lv3
     public String findPasswordById(Long id) {
         String sql = "SELECT password FROM schedules WHERE id = ?";
         return jdbcTemplate.queryForObject(sql, String.class, id);
     }
+    // lv4
+    public List<ScheduleResponseDto> findPaged(int offset, int size) {
+        String sql = """
+        SELECT s.id, s.title, s.content, s.created_at, s.modified_at, a.name AS writerName
+        FROM schedules s
+        JOIN authors a ON s.author_id = a.id
+        ORDER BY s.modified_at DESC
+        LIMIT ? OFFSET ?
+    """;
+
+        return jdbcTemplate.query(sql, new Object[]{size, offset}, (rs, rowNum) ->
+                new ScheduleResponseDto(
+                        rs.getLong("id"),
+                        rs.getString("title"),
+                        rs.getString("writerName"),
+                        rs.getString("content"),
+                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        rs.getTimestamp("modified_at").toLocalDateTime()
+                )
+        );
+    }
+
+
 
 
 }

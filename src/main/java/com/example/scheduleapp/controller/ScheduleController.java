@@ -64,6 +64,17 @@ public class ScheduleController {
         }
     }
 
+    //lv4
+    @GetMapping("/paged")
+    public ResponseEntity<List<ScheduleResponseDto>> getPaged(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(service.getPagedSchedules(page, size));
+    }
+
+
+
+
 
 
 }

@@ -75,6 +75,11 @@ public class ScheduleService {
 
         scheduleRepo.delete(id);
     }
+    //lv4
+    public List<ScheduleResponseDto> getPagedSchedules(int page, int size) {
+        int offset = (page - 1) * size;
+        return scheduleRepo.findPaged(offset, size);
+    }
 
 
 
