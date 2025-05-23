@@ -5,6 +5,8 @@ public class ScheduleRequestDto {
     private String writer;
     private String password;
     private String content;
+    private String writerName;
+    private String writerEmail;
 
     public ScheduleRequestDto() {}
 
@@ -13,6 +15,8 @@ public class ScheduleRequestDto {
         this.writer = writer;
         this.password = password;
         this.content = content;
+        this.writerName = writerName;
+        this.writerEmail = writerEmail;
     }
 
     public String getTitle() {
@@ -29,5 +33,13 @@ public class ScheduleRequestDto {
 
     public String getContent() {
         return content;
+    }
+    //lv3
+    public String getWriterName() {
+        return writerName;
+    }
+    //lv3
+    public String getWriterEmail() {
+        return writerEmail;
     }
 }

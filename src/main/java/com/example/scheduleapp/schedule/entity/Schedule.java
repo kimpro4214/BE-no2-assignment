@@ -8,6 +8,7 @@ public class Schedule {
     private String writer;
     private String password;
     private String content;
+    private Long authorId; // FK
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 

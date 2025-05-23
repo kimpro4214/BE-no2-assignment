@@ -18,23 +18,32 @@ public class ScheduleRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void save(ScheduleRequestDto dto) {
-        String sql = "INSERT INTO schedules (title, writer, password, content) VALUES (?, ?, ?, ?)";
-        jdbcTemplate.update(sql, dto.getTitle(), dto.getWriter(), dto.getPassword(), dto.getContent());
+    public void save(ScheduleRequestDto dto, Long authorId) {
+        String sql = "INSERT INTO schedules (title, password, content, author_id) VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(sql, dto.getTitle(), dto.getPassword(), dto.getContent(), authorId);
     }
 
-    public List<ScheduleResponseDto> findAll(String modifiedAt, String writer) {
-        StringBuilder sql = new StringBuilder("SELECT * FROM schedules WHERE 1=1");
+    public List<ScheduleResponseDto> findAll(String modifiedAt, String writerName) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT s.id, s.title, s.content, s.created_at, s.modified_at, a.name AS writerName " +
+                        "FROM schedules s JOIN authors a ON s.author_id = a.id "
+        );
+
         List<Object> params = new ArrayList<>();
+        List<String> conditions = new ArrayList<>();
 
         if (modifiedAt != null && !modifiedAt.isEmpty()) {
             sql.append(" AND DATE(modified_at) = ?");
             params.add(modifiedAt);
         }
 
-        if (writer != null && !writer.isEmpty()) {
+        if (writerName != null && !writerName.isEmpty()) {
             sql.append(" AND writer = ?");
-            params.add(writer);
+            params.add(writerName);
+        }
+        //lv3
+        if (!conditions.isEmpty()) {
+            sql.append("WHERE ").append(String.join(" AND ", conditions));
         }
 
         sql.append(" ORDER BY modified_at DESC");
@@ -43,8 +52,7 @@ public class ScheduleRepository {
                 new ScheduleResponseDto(
                         rs.getLong("id"),
                         rs.getString("title"),
-                        rs.getString("writer"),
-                        rs.getString("password"),
+                        rs.getString("writerName"),
                         rs.getString("content"),
                         rs.getTimestamp("created_at").toLocalDateTime(),
                         rs.getTimestamp("modified_at").toLocalDateTime()
@@ -52,13 +60,14 @@ public class ScheduleRepository {
     }
 
     public ScheduleResponseDto findById(Long id) {
-        String sql = "SELECT * FROM schedules WHERE id = ?";
+        String sql = "SELECT s.id, s.title, s.content, s.created_at, s.modified_at, a.name AS writerName " +
+                "FROM schedules s JOIN authors a ON s.author_id = a.id WHERE s.id = ?";
+
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) ->
                 new ScheduleResponseDto(
                         rs.getLong("id"),
                         rs.getString("title"),
-                        rs.getString("writer"),
-                        rs.getString("password"),
+                        rs.getString("writerName"),
                         rs.getString("content"),
                         rs.getTimestamp("created_at").toLocalDateTime(),
                         rs.getTimestamp("modified_at").toLocalDateTime()
@@ -66,14 +75,21 @@ public class ScheduleRepository {
         );
     }
 
-    public void update(Long id, String title, String writer) {
-        String sql = "UPDATE schedules SET title = ?, writer = ?, modified_at = NOW() WHERE id = ?";
-        jdbcTemplate.update(sql, title, writer, id);
+    public void update(Long id, ScheduleRequestDto dto, Long authorId) {
+        String sql = "UPDATE schedules SET title = ?, content = ?, modified_at = NOW() " +
+                "WHERE id = ? AND author_id = ? AND password = ?";
+        jdbcTemplate.update(sql, dto.getTitle(), dto.getContent(), id, authorId, dto.getPassword());
     }
+
 
     public void delete(Long id) {
         String sql = "DELETE FROM schedules WHERE id = ?";
         jdbcTemplate.update(sql, id);
+    }
+    //lv3
+    public String findPasswordById(Long id) {
+        String sql = "SELECT password FROM schedules WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, String.class, id);
     }
 
 
