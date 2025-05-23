@@ -1,12 +1,32 @@
 package com.example.scheduleapp.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class ScheduleRequestDto {
+
+    //lv6
+    @NotBlank(message = "제목은 필수입니다.")
     private String title;
-    private String writer;
-    private String password;
+
+    @NotBlank(message = "내용은 필수입니다.")
+    @Size(max = 200, message = "내용은 200자 이내여야 합니다.")
     private String content;
+
+    @NotBlank(message = "비밀번호는 필수입니다.")
+    private String password;
+
+    @NotBlank(message = "작성자 이름은 필수입니다.")
     private String writerName;
+
+    @NotBlank(message = "이메일은 필수입니다.")
+    @Email(message = "유효한 이메일 형식이어야 합니다.")
+
     private String writerEmail;
+
+    private String writer;
+
 
     public ScheduleRequestDto() {}
 
